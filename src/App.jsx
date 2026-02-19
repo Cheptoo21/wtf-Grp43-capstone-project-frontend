@@ -1,12 +1,13 @@
-import { Button } from "@/components/ui/button"
-function App(){
+import { Routes, Route } from "react-router-dom"
+import Home from "./pages/Home"
+import Signup from "./pages/Signup"
+
+export default function App() {
   return (
-    <div className = "mt-10 text-center">
-      <h1 className = "text-5xl font-bold text--800">Welcome to VoxLedger</h1>
-    <Button>
-      Test
-      </Button>
-      </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/signup" element={<Signup />} />
+      
+    </Routes>
   )
 }
-export default App
