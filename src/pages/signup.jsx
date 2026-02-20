@@ -1,7 +1,11 @@
+import SignUpForm from "../components/auth/signup"
+import  SiteLayout from "../components/layout/site-layout"
 export default function Signup(){
     return (
         <div>
-            Sign up page
+            <SiteLayout>
+           <SignUpForm/>
+            </SiteLayout>
         </div>
     )
 }
