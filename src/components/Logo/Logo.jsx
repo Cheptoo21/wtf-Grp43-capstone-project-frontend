@@ -1,0 +1,12 @@
+import VoiceInput from '../../assets/icons/VoiceInputIcon.svg?react'
+
+export default function Logo() {
+    return (
+        <div className='flex items-center justify-center space-x-2'>
+            <div className="flex items-center justify-center bg-primary w-8 h-8 rounded-lg">
+                <VoiceInput />
+            </div>
+            <h1 className='text-xl font-bold font-manrope'>VoxLedger</h1>
+        </div>
+    )
+}
