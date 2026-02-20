@@ -1,4 +1,4 @@
-import VoiceInput from '../../assets/icons/VoiceInputIcon.svg?react'
+import VoiceInput from '../../assets/icons/voice-input-icon.svg?react'
 
 export default function Logo() {
     return (
