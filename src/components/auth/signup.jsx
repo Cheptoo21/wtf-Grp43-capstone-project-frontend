@@ -142,7 +142,7 @@ export default function SignUpForm() {
               <Button
                 variant="link"
                 onClick={() => 
-                    navigate("/setup")
+                    navigate("/voice-setup")
                 }
                 className="mt-2 text-sm text-emerald-600 font-medium"
               >
