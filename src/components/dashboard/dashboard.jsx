@@ -11,7 +11,9 @@ export default function DashboardLayout({ children }) {
       
       <div className="hidden md:block">
         <Sidebar />
+        
       </div>
+      
 
     
       {sidebarOpen && (

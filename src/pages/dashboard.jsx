@@ -1,9 +1,9 @@
 import DashboardLayout from "@/components/dashboard/dashboard"
-
+import DashboardContents from "../components/dashboard/dashboardcontents"
 export default function Dashboard() {
   return (
     <DashboardLayout>
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+     <DashboardContents />
     </DashboardLayout>
   )
 }
