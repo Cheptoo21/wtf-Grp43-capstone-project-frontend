@@ -1,4 +1,4 @@
-// src/components/dashboard/Transactions.jsx
+
 const transactions = [
   { label: "Sale: Digital Product", time: "Today, 2:14 PM", amount: "+$45.00", positive: true },
   { label: "Expense: Business Lunch", time: "Today, 12:30 PM", amount: "-$12.00" },

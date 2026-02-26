@@ -5,6 +5,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
+  GoogleAuthProvider,
+  OAuthProvider,
+  signInWithPopup,
+} from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import {
   Card,
   CardContent,
   CardHeader,
@@ -21,7 +27,7 @@ export default function LoginForm() {
   })
 
   const [showPassword, setShowPassword] = useState(false)
-//   const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const navigate = useNavigate()
@@ -29,51 +35,77 @@ export default function LoginForm() {
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
+  async function handleGoogleLogin() {
+  try {
+    const provider = new GoogleAuthProvider()
+    // eslint-disable-next-line no-unused-vars
+    const result = await signInWithPopup(auth, provider)
 
-//   async function handleSubmit(e) {
-//     e.preventDefault()
-//     setLoading(true)
-//     setError(null)
+    // console.log("Google user:", result.user)
+    navigate("/dashboard")
+  } catch (err) {
+    console.error(err)
+    setError("Google sign-in failed")
+  }
+}
 
-//     try {
-//       const res = await fetch("/api/auth/login", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(formData),
-//       })
+async function handleAppleLogin() {
+  try {
+    const provider = new OAuthProvider("apple.com")
+    const result = await signInWithPopup(auth, provider)
 
-//       if (!res.ok) {
-//         throw new Error("Invalid email or password")
-//       }
+    console.log("Apple user:", result.user)
+    navigate("/dashboard")
+  } catch (err) {
+    console.error(err)
+    setError("Apple sign-in failed")
+  }
+}
 
-//       const data = await res.json()
-//       console.log("Login success:", data)
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-//        navigate("/dashboard")
-//     } catch (err) {
-//       setError(err.message)
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+        console.log(JSON.stringify(formData))
+      if (!res.ok) {
+        throw new Error("Invalid email or password")
+      }
 
-//fake log , will implement once api is ready
-function handleSubmit(e) {
-  e.preventDefault()
-  setError(null)
+      const data = await res.json()
+      console.log("Login success:", data)
 
-  if (!formData.email || !formData.password) {
-    setError("Please enter email and password")
-    return
+       navigate("/dashboard")
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  
-  console.log("Logged in with:", formData)
+//fake log , will implement once api is ready
+// function handleSubmit(e) {
+//   e.preventDefault()
+//   setError(null)
 
-  navigate("/dashboard")
-}
+//   if (!formData.email || !formData.password) {
+//     setError("Please enter email and password")
+//     return
+//   }
+
+  
+//   console.log("Logged in with:", formData)
+
+//   navigate("/dashboard")
+// }
   return (
     <Card className="w-full max-w-[450px] min-h-[600px] rounded-xl shadow-md mx-4 sm:mx-0">
       <CardHeader className="text-center">
@@ -137,19 +169,19 @@ function handleSubmit(e) {
           )}
 
           
-          {/* <Button
+          <Button
             type="submit"
             className="w-full bg-emerald-500 hover:bg-emerald-600 h-12"
             disabled={loading}
           >
             {loading ? "Signing In..." : "Sign In"}
-          </Button> */}
-<Button
+          </Button>
+{/* <Button
   type="submit"
   className="w-full bg-emerald-500 hover:bg-emerald-600 h-12"
 >
   Sign In
-</Button>
+</Button> */}
      
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-200" />
@@ -159,15 +191,17 @@ function handleSubmit(e) {
 
           
           <div className="flex justify-center gap-4">
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
+            <button 
+            onClick = {handleGoogleLogin}
+            className="h-10 w-10 rounded-full border flex items-center justify-center">
               <img src="/src/assets/icons/google.svg" alt="Google" className="h-5" />
             </button>
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
+            <button 
+            onClick = {handleAppleLogin}
+            className="h-10 w-10 rounded-full border flex items-center justify-center">
               <img src="/src/assets/icons/apple.svg" alt="Apple" className="h-5" />
             </button>
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
-              <img src="/src/assets/icons/facebook.svg" alt="Facebook" className="h-5" />
-            </button>
+            
           </div>
 
           

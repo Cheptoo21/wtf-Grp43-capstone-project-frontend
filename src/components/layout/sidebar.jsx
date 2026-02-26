@@ -6,8 +6,10 @@ import {
   Settings,
 } from "lucide-react"
 import Logo from "@/components/Logo/logo"
+import { useAuth } from "@/context/AuthContext"
 
 export default function Sidebar({onClose}) {
+  const { user } = useAuth() || {}
   return (
     <aside className="w-64 min-h-screen bg-white border-r flex flex-col">
       
@@ -41,20 +43,24 @@ export default function Sidebar({onClose}) {
       </nav>
 
       
-      <div className="px-4 py-4 border-t">
-        <div className="flex items-center gap-3">
-          <img
-            src="https://i.pravatar.cc/40"
-            alt="User"
-            className="h-10 w-10 rounded-full"
-          />
-          <div className="text-sm">
-            <p className="font-medium text-gray-800">Thandi M.</p>
-            {/* should be user name */}
-            <p className="text-xs text-gray-500">Premium Plan</p>
+       <div className="px-4 py-4 border-t">
+        {user && (
+          <div className="flex items-center gap-3">
+            <img
+              src={user.photoURL || "https://i.pravatar.cc/40"}
+              alt="User"
+              className="h-10 w-10 rounded-full"
+            />
+            <div className="text-sm">
+              <p className="font-medium text-gray-800">
+                {user.displayName || "User"}
+              </p>
+              <p className="text-xs text-gray-500">Premium Plan</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
+
       {onClose && (
         <button
           onClick={onClose}

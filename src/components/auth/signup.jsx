@@ -16,7 +16,7 @@ import { Mic, Eye, EyeOff } from "lucide-react"
 
 export default function SignUpForm() {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     password: "",
   })
@@ -36,7 +36,7 @@ export default function SignUpForm() {
     setError(null)
 
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
         //waiting for api
         method: "POST",
         headers: {
@@ -46,6 +46,7 @@ export default function SignUpForm() {
       })
 
       if (!res.ok) {
+        console.log("Error response:", res)
         throw new Error("Failed to create account")
       }
 
@@ -57,6 +58,7 @@ export default function SignUpForm() {
       setError(err.message)
     } finally {
       setLoading(false)
+      navigate("/dashboard")
     }
   }
 
@@ -77,9 +79,9 @@ export default function SignUpForm() {
           <div className="space-y-2">
             <Label>Full Name</Label>
             <Input
-              name="fullName"
+              name="name"
               placeholder="Enter your full name"
-              value={formData.fullName}
+              value={formData.name}
               onChange={handleChange}
               required
                className="h-12 px-4 text-base bg-gray-50"

@@ -1,4 +1,4 @@
-// src/components/dashboard/StatCard.jsx
+
 export default function StatCard() {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">
