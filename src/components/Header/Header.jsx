@@ -1,4 +1,4 @@
-import Logo from "../Logo/Logo";
+import Logo from "../Logo/Logo.jsx";
 import ResponsiveNav from "../ui/responsive-nav";
 
 const navItems = [
