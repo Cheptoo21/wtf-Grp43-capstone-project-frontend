@@ -1,4 +1,4 @@
-import VoiceInput from "../../assets/icons/voice-input.svg";
+import VoiceInput from "../../assets/icons/voice-input-icon.svg?react";
 import { Link } from "react-router-dom";
 
 export default function Logo() {
