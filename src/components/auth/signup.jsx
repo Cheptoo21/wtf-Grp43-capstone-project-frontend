@@ -1,81 +1,80 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card"
-import { Mic, Eye, EyeOff } from "lucide-react"
+} from "@/components/ui/card";
+import { Mic, Eye, EyeOff } from "lucide-react";
 
 export default function SignUpForm() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-  })
+  });
 
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   function handleChange(e) {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   }
-
   async function handleSubmit(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
-        //waiting for api
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/auth/signup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      })
+      );
 
       if (!res.ok) {
-        console.log("Error response:", res)
-        throw new Error("Failed to create account")
+        console.log("Error response:", res);
+        throw new Error("Failed to create account");
       }
 
-      const data = await res.json()
-      console.log("Signup success:", data)
+      const data = await res.json();
+      console.log("Signup success:", data);
 
-      
+      // Store token if your API returns one
+      // localStorage.setItem("token", data.token)
+
+      // Navigate after successful signup
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setLoading(false)
-      navigate("/dashboard")
+      setLoading(false);
     }
   }
 
   return (
     <Card className="w-full max-w-[500px] min-h-[700px] rounded-xl shadow-md mx-4 sm:mx-0">
       <CardHeader>
-        <CardTitle className="text-xl font-bold">
-          Join VoxLedger
-        </CardTitle>
-        <CardDescription>
-          Your voice-first finance partner.
-        </CardDescription>
+        <CardTitle className="text-xl font-bold">Join VoxLedger</CardTitle>
+        <CardDescription>Your voice-first finance partner.</CardDescription>
       </CardHeader>
 
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
-          
           <div className="space-y-2">
             <Label>Full Name</Label>
             <Input
@@ -84,11 +83,10 @@ export default function SignUpForm() {
               value={formData.name}
               onChange={handleChange}
               required
-               className="h-12 px-4 text-base bg-gray-50"
+              className="h-12 px-4 text-base bg-gray-50"
             />
           </div>
 
-      
           <div className="space-y-1">
             <Label>Email Address</Label>
             <Input
@@ -98,11 +96,10 @@ export default function SignUpForm() {
               value={formData.email}
               onChange={handleChange}
               required
-               className="h-12 px-4 text-base bg-gray-50"
+              className="h-12 px-4 text-base bg-gray-50"
             />
           </div>
 
-          
           <div className="space-y-1 relative">
             <Label>Password</Label>
             <Input
@@ -112,7 +109,7 @@ export default function SignUpForm() {
               value={formData.password}
               onChange={handleChange}
               required
-               className="h-12 px-4 text-base bg-gray-50"
+              className="h-12 px-4 text-base bg-gray-50"
             />
             <button
               type="button"
@@ -123,7 +120,6 @@ export default function SignUpForm() {
             </button>
           </div>
 
-        
           <div className="border border-dashed border-emerald-300 rounded-lg p-4 flex gap-3 bg-emerald-50">
             <div className="h-10 w-10 flex items-center justify-center rounded-full bg-emerald-500 text-white">
               <Mic size={18} />
@@ -137,15 +133,13 @@ export default function SignUpForm() {
                 </span>
               </p>
               <p className="text-xs text-gray-600">
-                Secure your account using your unique voice print for
-                hands-free banking.
+                Secure your account using your unique voice print for hands-free
+                banking.
               </p>
 
               <Button
                 variant="link"
-                onClick={() => 
-                    navigate("/voice-setup")
-                }
+                onClick={() => navigate("/voice-setup")}
                 className="mt-2 text-sm text-emerald-600 font-medium"
               >
                 Start Recording
@@ -153,12 +147,8 @@ export default function SignUpForm() {
             </div>
           </div>
 
-        
-          {error && (
-            <p className="text-sm text-red-500">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
-          
           <Button
             type="submit"
             className="w-full bg-emerald-500 hover:bg-emerald-600"
@@ -168,10 +158,11 @@ export default function SignUpForm() {
           </Button>
 
           <p className="text-xs text-center text-gray-500">
-            By joining, you agree to VoxLedger’s Terms of Service and Privacy Policy.
+            By joining, you agree to VoxLedger’s Terms of Service and Privacy
+            Policy.
           </p>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

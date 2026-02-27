@@ -21,5 +21,5 @@ export default function App() {
          <Route path="/analytics" element={<AnalyticsDashboard />} />
          <Route path="/settings" element={<SettingsPage/>} />
     </Routes>
-  )
+  );
 }

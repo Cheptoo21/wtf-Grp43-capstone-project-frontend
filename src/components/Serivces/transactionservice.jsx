@@ -1,66 +1,85 @@
-const API_BASE = "http://localhost:3000/api/transactions";
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/transactions`;
 
 export function getToken() {
   return localStorage.getItem("token") ?? "";
 }
 
+// console.log(getToken());
+
 export async function extractWithLLM(transcript) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  // console.log("Extracting with LLM, transcript:", transcript);
+  if (!transcript) throw new Error("Transcript is required");
+
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ai/extract`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 128,
-      system: `You are a transaction parser for a small-business bookkeeping app.
-Extract fields from the transcript and respond ONLY with raw JSON — no markdown, no explanation.
-
-JSON shape:
-{
-  "transactionType": "sale" | "expense",
-  "item": string,
-  "amount": number,
-  "currency": "NGN"
-}
-
-- transactionType: "sale" if user sold something, "expense" if they bought/paid.
-- item: title-cased product or service name.
-- amount: positive number, no symbols.
-- currency: always "NGN" unless user says otherwise.
-- If a required field is missing, return { "error": "<reason>" }.`,
-      messages: [{ role: "user", content: transcript }],
-    }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ transcript }),
   });
 
-  if (!response.ok) throw new Error(`Claude API error ${response.status}`);
-
-  const data = await response.json();
-  const raw = data.content?.find((b) => b.type === "text")?.text ?? "";
-
-  let parsed;
-  try {
-    parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
-  } catch {
-    throw new Error("Could not parse AI response");
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`AI extraction failed: ${errText}`);
   }
 
-  if (parsed.error) throw new Error(parsed.error);
-  if (!parsed.transactionType || !parsed.item || parsed.amount == null)
-    throw new Error("AI returned incomplete fields");
+  const data = await response.json();
+  // console.log(data);
 
+  if (!data.success) throw new Error(data.message ?? "AI extraction failed");
+
+  const parsed = data.data;
+
+  // Validate required fields before sending to backend
+  if (!parsed.transactionType || !parsed.item || parsed.amount == null) {
+    throw new Error(
+      `AI returned incomplete fields: ${JSON.stringify(parsed)}`
+    );
+  }
+
+  // Always include rawText
   return { ...parsed, rawText: transcript };
 }
 
-export async function saveTransaction(payload) {
+/**
+ * Save a transaction object to backend.
+ * Expects object with: transactionType, item, amount, currency, rawText
+ */
+export async function saveTransaction(transactionObj) {
+  if (
+    !transactionObj ||
+    !transactionObj.transactionType ||
+    !transactionObj.item ||
+    transactionObj.amount == null
+  ) {
+    throw new Error(
+      "Cannot save: transactionType, item, and amount are required"
+    );
+  }
+
   const res = await fetch(API_BASE, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${getToken()}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(transactionObj),
   });
 
   const data = await res.json();
-  if (!res.ok || !data.success) throw new Error(data.message ?? "Failed to save");
+
+  if (!res.ok || !data.success)
+    throw new Error(data.message ?? "Failed to save transaction");
+
   return data.transaction;
+}
+
+/**
+ * Convenience function: extract + save in one call
+ */
+export async function processAndSave(transcript) {
+  const transaction = await extractWithLLM(transcript);
+  const saved = await saveTransaction(transaction);
+  return saved;
 }
