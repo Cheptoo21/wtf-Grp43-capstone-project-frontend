@@ -26,7 +26,7 @@ export default function Sidebar({onClose}) {
           label="Dashboard"
         />
         <SidebarItem
-          to="/ledger"
+          to="/Ledger"
           icon={<BookOpen size={18} />}
           label="Ledger"
         />

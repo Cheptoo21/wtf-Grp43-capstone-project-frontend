@@ -13,7 +13,7 @@ export default function WelcomeCard() {
             <p className="font-manrope font-medium text-sm text-[#94A3B8]">Listening...</p>
             <div className="bg-[#F6F8F7] border-1 border-[#F1F5F9] rounded-xl p-4 w-full mt-16">
                 <div className="flex">
-                    <span className="h-8 w-8 inline-flex items-center rounded-full justify-center bg-[#DCFCE7]" mb-8><ArrowUp /></span>
+                    <span className="h-8 w-8 inline-flex items-center rounded-full justify-center bg-[#DCFCE7] mb-8" ><ArrowUp /></span>
                     <p className="capiitalize font-medium text-base  text-xs text-[#64748B] ml-3"> Today's profit <span className="block  text-xs">$1,240.50</span></p><br />
                 </div>
                 <img src={slidebar} alt="slidebar" className="mt-8"/>
