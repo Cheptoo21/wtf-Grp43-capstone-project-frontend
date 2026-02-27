@@ -91,21 +91,6 @@ async function handleAppleLogin() {
     }
   }
 
-//fake log , will implement once api is ready
-// function handleSubmit(e) {
-//   e.preventDefault()
-//   setError(null)
-
-//   if (!formData.email || !formData.password) {
-//     setError("Please enter email and password")
-//     return
-//   }
-
-  
-//   console.log("Logged in with:", formData)
-
-//   navigate("/dashboard")
-// }
   return (
     <Card className="w-full max-w-[450px] min-h-[600px] rounded-xl shadow-md mx-4 sm:mx-0">
       <CardHeader className="text-center">
@@ -176,12 +161,6 @@ async function handleAppleLogin() {
           >
             {loading ? "Signing In..." : "Sign In"}
           </Button>
-{/* <Button
-  type="submit"
-  className="w-full bg-emerald-500 hover:bg-emerald-600 h-12"
->
-  Sign In
-</Button> */}
      
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-200" />

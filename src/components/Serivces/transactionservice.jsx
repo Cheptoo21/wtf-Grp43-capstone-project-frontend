@@ -7,9 +7,13 @@ export function getToken() {
 export async function extractWithLLM(transcript) {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": import.meta.env.VITE_CLAUDE_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6-20250514",
       max_tokens: 128,
       system: `You are a transaction parser for a small-business bookkeeping app.
 Extract fields from the transcript and respond ONLY with raw JSON — no markdown, no explanation.

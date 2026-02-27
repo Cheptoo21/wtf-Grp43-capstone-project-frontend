@@ -6,8 +6,9 @@ export const useVoiceRecorder = () => {
   const [transcript, setTranscript] = useState('');
 
   const startRecording = () => {
+    console.log('Starting voice recording...');
     return new Promise((resolve, reject) => {
-      // Web Speech API — built into Chrome and Edge, no install needed
+        console.log('Requesting microphone access...');
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -26,8 +27,9 @@ export const useVoiceRecorder = () => {
       recognition.onresult = (event) => {
         const spokenText = event.results[0][0].transcript;
         setTranscript(spokenText);
+        console.log('Recognized text:', spokenText);
         setIsRecording(false);
-        resolve(spokenText); // returns what the user said as text
+        resolve(spokenText);
       };
 
       recognition.onerror = (event) => {

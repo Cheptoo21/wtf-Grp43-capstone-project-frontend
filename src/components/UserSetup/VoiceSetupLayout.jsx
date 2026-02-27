@@ -1,92 +1,140 @@
-"use client"
-import { useState, useRef } from "react"
-import { useNavigate } from "react-router-dom"
-import Footer from "../layout/footer"
-import VoiceInstructionCard from "./VoiceInstructionCard"
-import MicButton from "./MicButton"
-import AudioControls from "./AudioControls"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Footer from "../layout/footer";
+import VoiceInstructionCard from "./VoiceInstructionCard";
+import MicButton from "./MicButton";
+import AudioControls from "./AudioControls";
+import { useVoiceRecorder } from "../../hooks/useVoiceRecorder";
+import { calculateMatchScore, PASSPHRASE, MATCH_THRESHOLD } from "../../utils/voiceMatch";
+
+const STATUS_CONFIG = {
+  idle: {
+    label: "Start Recording",
+    description: "Speak naturally. Say the phrase above clearly.",
+  },
+  recording: {
+    label: "Listening... speak now",
+    description: "Keep speaking until we detect your voice.",
+  },
+  checking: {
+    label: "Checking phrase...",
+    description: "Please wait.",
+  },
+  uploading: {
+    label: "Saving your voice...",
+    description: "Almost done!",
+  },
+  success: {
+    label: "Voice enrolled successfully!",
+    description: "You are all set.",
+  },
+  wrongphrase: {
+    label: "Phrase did not match. Try again.",
+    description: 'Please say the exact phrase shown above.',
+  },
+  error: {
+    label: "Something went wrong.",
+    description: "Please try again.",
+  },
+};
 
 export default function VoiceSetupLayout() {
-  const navigate = useNavigate()
-  const [recording, setRecording] = useState(false)
-  const [audioURL, setAudioURL] = useState(null)
-  const mediaRecorderRef = useRef(null)
-  const audioChunksRef = useRef([])
+  const navigate = useNavigate();
+  const { record, isRecording } = useVoiceRecorder();
+  const [status, setStatus] = useState("idle");
 
-  const startRecording = async () => {
+  const token = localStorage.getItem("token");
+
+  const isDisabled = ["uploading", "success", "checking"].includes(status);
+
+  const handleMicClick = async () => {
+    if (isDisabled) return;
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
-      mediaRecorderRef.current = mediaRecorder
-      audioChunksRef.current = []
+      setStatus("recording");
+      const spokenText = await record();
 
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data)
+      setStatus("checking");
+      const score = calculateMatchScore(spokenText, PASSPHRASE);
+
+      if (score < MATCH_THRESHOLD) {
+        setStatus("wrongphrase");
+        return;
       }
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" })
-        const url = URL.createObjectURL(audioBlob)
-        setAudioURL(url)
-      }
+      setStatus("uploading");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/voice/enroll`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          passphrase: spokenText.toLowerCase().trim(),
+        }),
+      });
 
-      mediaRecorder.start()
-      setRecording(true)
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus("success");
+      } else {
+        setStatus("error");
+      }
     } catch (err) {
-      console.error("Error accessing microphone:", err)
-      alert("Please allow microphone access to record your voice.")
+      console.error(err.message);
+      setStatus("error");
     }
-  }
+  };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop()
-      setRecording(false)
-    }
-  }
-
-  const playAudio = () => {
-    if (audioURL) {
-      const audio = new Audio(audioURL)
-      audio.play()
-    }
-  }
-
-  const proceedToDashboard = () => {
-    navigate("/dashboard")
-  }
+  const { label, description } = STATUS_CONFIG[status];
 
   return (
     <div className="flex flex-col items-center justify-center h-full mt-16">
       <div className="flex flex-col items-center justify-center bg-white rounded-3xl p-10 shadow-SM z-10 max-w-140 min-w--sm border-[#13ECA40D] border-1">
-        <h3 className="font-manrope font-extrabold sm:text-4xl text-2xl">Welcome!</h3>   
+
+        <h3 className="font-manrope font-extrabold sm:text-4xl text-2xl">
+          Welcome!
+        </h3>
         <p className="text-center text-xl font-normal mt-4">
-          Let’s set up your <span className="text-primary">Voice Identity</span> to secure your ledger.
+          Let's set up your{" "}
+          <span className="text-primary">Voice Identity</span> to secure your
+          ledger.
         </p>
 
-        <VoiceInstructionCard />
+        {status !== "success" && <VoiceInstructionCard />}
 
-        <MicButton 
-          recording={recording} 
-          onClick={recording ? stopRecording : startRecording} 
-        />
 
-        <h4 className="m-4 text-xl font-bold font-manrope">
-          {recording ? "Recording..." : "Start Recording"}
-        </h4>
-        <p className="text-center text-[#9CA3AF]">
-          Speak naturally. We’ll use this sample to verify your identity.
-        </p>
+        {status !== "success" && (
+          <>
+            <MicButton
+              recording={isRecording}
+              onClick={handleMicClick}
+              disabled={isDisabled}
+            />
 
-        <AudioControls 
-          audioURL={audioURL} 
-          onPlay={playAudio} 
-          onProceed={proceedToDashboard} 
+            <h4 className="m-4 text-xl font-bold font-manrope">{label}</h4>
+
+            <p className="text-center text-[#9CA3AF]">{description}</p>
+          </>
+        )}
+
+        {["error", "wrongphrase"].includes(status) && (
+          <button
+            onClick={() => setStatus("idle")}
+            className="mt-4 text-primary underline text-sm"
+          >
+            Try again
+          </button>
+        )}
+        <AudioControls
+          success={status === "success"}
+          onProceed={() => navigate("/dashboard")}
         />
       </div>
 
       <br />
-      <Footer/>
+      <Footer />
     </div>
-  )
+  );
 }
