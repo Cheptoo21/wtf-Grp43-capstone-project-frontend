@@ -1,5 +1,5 @@
 import Logo from "../Logo/Logo.jsx";
-import ResponsiveNav from "../ui/responsive-nav";
+import ResponsiveNav from "../ui/responsive-nav.jsx";
 
 const navItems = [
   { label: "Features", to: "/" },
