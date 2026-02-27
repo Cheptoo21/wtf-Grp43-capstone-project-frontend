@@ -30,37 +30,43 @@ export default function SignUpForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+async function handleSubmit(e) {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
-        //waiting for api
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
-      if (!res.ok) {
-        console.log("Error response:", res)
-        throw new Error("Failed to create account")
-      }
-
-      const data = await res.json()
-      console.log("Signup success:", data)
-
-      
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-      navigate("/dashboard")
+    if (!res.ok) {
+      const errText = await res.text();
+      console.log("Error response:", errText);
+      throw new Error("Failed to create account");
     }
+
+    const data = await res.json();
+    console.log("Signup success:", data);
+
+    // --- SAVE TOKEN TO LOCAL STORAGE ---
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    } else {
+      console.warn("No token returned from backend!");
+    }
+
+    navigate("/dashboard"); // only navigate after storing token
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <Card className="w-full max-w-[500px] min-h-[700px] rounded-xl shadow-md mx-4 sm:mx-0">

@@ -62,34 +62,42 @@ async function handleAppleLogin() {
   }
 }
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+async function handleSubmit(e) {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
-        console.log(JSON.stringify(formData))
-      if (!res.ok) {
-        throw new Error("Invalid email or password")
-      }
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
-      const data = await res.json()
-      console.log("Login success:", data)
-
-       navigate("/dashboard")
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
+    if (!res.ok) {
+      const errText = await res.text();
+      console.log("Error response:", errText);
+      throw new Error("Login failed");
     }
+
+    const data = await res.json();
+    console.log("Login success:", data);
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    } else {
+      console.warn("No token returned from backend!");
+    }
+
+    navigate("/dashboard");
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <Card className="w-full max-w-[450px] min-h-[600px] rounded-xl shadow-md mx-4 sm:mx-0">
