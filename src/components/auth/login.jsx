@@ -31,7 +31,31 @@ export default function LoginForm() {
   const [error, setError] = useState(null)
 
   const navigate = useNavigate()
+ async function handleGoogleLogin() {
+  try {
+    const provider = new GoogleAuthProvider()
+    // eslint-disable-next-line no-unused-vars
+    const result = await signInWithPopup(auth, provider)
 
+    // console.log("Google user:", result.user)
+    navigate("/dashboard")
+  } catch (err) {
+    console.error(err)
+    setError("Google sign-in failed")
+  }
+}
+async function handleAppleLogin() {
+  try {
+    const provider = new OAuthProvider("apple.com")
+    const result = await signInWithPopup(auth, provider)
+
+    console.log("Apple user:", result.user)
+    navigate("/dashboard")
+  } catch (err) {
+    console.error(err)
+    setError("Apple sign-in failed")
+  }
+}
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
