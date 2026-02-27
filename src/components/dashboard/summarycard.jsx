@@ -1,4 +1,4 @@
-// src/components/dashboard/SummaryCard.jsx
+
 export default function SummaryCard({ title, amount, subtitle, action }) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">

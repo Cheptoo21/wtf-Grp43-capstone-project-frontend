@@ -50,8 +50,8 @@ export default function SignUpForm() {
         throw new Error("Failed to create account")
       }
 
-      const data = await res.json()
-      console.log("Signup success:", data)
+    const data = await res.json();
+    console.log("Signup success:", data);
 
       
     } catch (err) {
@@ -60,7 +60,14 @@ export default function SignUpForm() {
       setLoading(false)
       navigate("/dashboard")
     }
+
+    navigate("/dashboard"); // only navigate after storing token
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <Card className="w-full max-w-[500px] min-h-[700px] rounded-xl shadow-md mx-4 sm:mx-0">

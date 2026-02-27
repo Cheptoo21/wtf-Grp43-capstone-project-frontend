@@ -5,6 +5,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
+  GoogleAuthProvider,
+  OAuthProvider,
+  signInWithPopup,
+} from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import {
   Card,
   CardContent,
   CardHeader,
@@ -159,15 +165,17 @@ export default function LoginForm() {
 
           
           <div className="flex justify-center gap-4">
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
+            <button 
+            onClick = {handleGoogleLogin}
+            className="h-10 w-10 rounded-full border flex items-center justify-center">
               <img src="/src/assets/icons/google.svg" alt="Google" className="h-5" />
             </button>
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
+            <button 
+            onClick = {handleAppleLogin}
+            className="h-10 w-10 rounded-full border flex items-center justify-center">
               <img src="/src/assets/icons/apple.svg" alt="Apple" className="h-5" />
             </button>
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
-              <img src="/src/assets/icons/facebook.svg" alt="Facebook" className="h-5" />
-            </button>
+            
           </div>
 
           
