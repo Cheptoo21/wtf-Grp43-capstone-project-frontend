@@ -35,70 +35,51 @@ export default function LoginForm() {
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
-  async function handleGoogleLogin() {
-  try {
-    const provider = new GoogleAuthProvider()
-    // eslint-disable-next-line no-unused-vars
-    const result = await signInWithPopup(auth, provider)
 
-    // console.log("Google user:", result.user)
-    navigate("/dashboard")
-  } catch (err) {
-    console.error(err)
-    setError("Google sign-in failed")
-  }
-}
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-async function handleAppleLogin() {
-  try {
-    const provider = new OAuthProvider("apple.com")
-    const result = await signInWithPopup(auth, provider)
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+        console.log(JSON.stringify(formData))
+      if (!res.ok) {
+        throw new Error("Invalid email or password")
+      }
 
-    console.log("Apple user:", result.user)
-    navigate("/dashboard")
-  } catch (err) {
-    console.error(err)
-    setError("Apple sign-in failed")
-  }
-}
+      const data = await res.json()
+      console.log("Login success:", data)
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
-
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.log("Error response:", errText);
-      throw new Error("Login failed");
+       navigate("/dashboard")
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
-
-    const data = await res.json();
-    console.log("Login success:", data);
-
-    if (data.token) {
-      localStorage.setItem("token", data.token);
-    } else {
-      console.warn("No token returned from backend!");
-    }
-
-    navigate("/dashboard");
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
   }
-}
 
+//fake log , will implement once api is ready
+// function handleSubmit(e) {
+//   e.preventDefault()
+//   setError(null)
+
+//   if (!formData.email || !formData.password) {
+//     setError("Please enter email and password")
+//     return
+//   }
+
+  
+//   console.log("Logged in with:", formData)
+
+//   navigate("/dashboard")
+// }
   return (
     <Card className="w-full max-w-[450px] min-h-[600px] rounded-xl shadow-md mx-4 sm:mx-0">
       <CardHeader className="text-center">
@@ -169,6 +150,12 @@ async function handleSubmit(e) {
           >
             {loading ? "Signing In..." : "Sign In"}
           </Button>
+{/* <Button
+  type="submit"
+  className="w-full bg-emerald-500 hover:bg-emerald-600 h-12"
+>
+  Sign In
+</Button> */}
      
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-200" />
