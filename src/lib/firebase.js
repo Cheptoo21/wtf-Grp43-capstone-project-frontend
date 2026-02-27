@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDaj4r9yjkYHAyivqkcI2eNiAHazipFkPg",
+  // apiKey: "AIzaSyDaj4r9yjkYHAyivqkcI2eNiAHazipFkPg",
   authDomain: "voxledger-ca720.firebaseapp.com",
   projectId: "voxledger-ca720",
   storageBucket: "voxledger-ca720.firebasestorage.app",
