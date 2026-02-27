@@ -21,7 +21,7 @@ export default function LoginForm() {
   })
 
   const [showPassword, setShowPassword] = useState(false)
-//   const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const navigate = useNavigate()
@@ -30,50 +30,50 @@ export default function LoginForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-//   async function handleSubmit(e) {
-//     e.preventDefault()
-//     setLoading(true)
-//     setError(null)
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-//     try {
-//       const res = await fetch("/api/auth/login", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(formData),
-//       })
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+        console.log(JSON.stringify(formData))
+      if (!res.ok) {
+        throw new Error("Invalid email or password")
+      }
 
-//       if (!res.ok) {
-//         throw new Error("Invalid email or password")
-//       }
+      const data = await res.json()
+      console.log("Login success:", data)
 
-//       const data = await res.json()
-//       console.log("Login success:", data)
-
-//        navigate("/dashboard")
-//     } catch (err) {
-//       setError(err.message)
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
-
-//fake log , will implement once api is ready
-function handleSubmit(e) {
-  e.preventDefault()
-  setError(null)
-
-  if (!formData.email || !formData.password) {
-    setError("Please enter email and password")
-    return
+       navigate("/dashboard")
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  
-  console.log("Logged in with:", formData)
+//fake log , will implement once api is ready
+// function handleSubmit(e) {
+//   e.preventDefault()
+//   setError(null)
 
-  navigate("/dashboard")
-}
+//   if (!formData.email || !formData.password) {
+//     setError("Please enter email and password")
+//     return
+//   }
+
+  
+//   console.log("Logged in with:", formData)
+
+//   navigate("/dashboard")
+// }
   return (
     <Card className="w-full max-w-[450px] min-h-[600px] rounded-xl shadow-md mx-4 sm:mx-0">
       <CardHeader className="text-center">
@@ -137,19 +137,19 @@ function handleSubmit(e) {
           )}
 
           
-          {/* <Button
+          <Button
             type="submit"
             className="w-full bg-emerald-500 hover:bg-emerald-600 h-12"
             disabled={loading}
           >
             {loading ? "Signing In..." : "Sign In"}
-          </Button> */}
-<Button
+          </Button>
+{/* <Button
   type="submit"
   className="w-full bg-emerald-500 hover:bg-emerald-600 h-12"
 >
   Sign In
-</Button>
+</Button> */}
      
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-200" />
