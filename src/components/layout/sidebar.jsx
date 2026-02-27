@@ -1,24 +1,16 @@
-import { NavLink } from "react-router-dom"
-import {
-  LayoutDashboard,
-  BookOpen,
-  BarChart3,
-  Settings,
-} from "lucide-react"
-import Logo from "@/components/Logo/logo"
-import { useAuth } from "@/context/AuthContext"
+import { NavLink } from "react-router-dom";
+import { LayoutDashboard, BookOpen, BarChart3, Settings } from "lucide-react";
+import Logo from "@/components/Logo/Logo.jsx";
+import { useAuth } from "@/context/AuthContext";
 
-export default function Sidebar({onClose}) {
-  const { user } = useAuth() || {}
+export default function Sidebar({ onClose }) {
+  const { user } = useAuth() || {};
   return (
     <aside className="w-64 min-h-screen bg-white border-r flex flex-col">
-      
-     
       <div className="px-6 py-4 border-b">
         <Logo />
       </div>
 
-      
       <nav className="flex-1 px-4 py-6 space-y-2">
         <SidebarItem
           to="/dashboard"
@@ -42,8 +34,7 @@ export default function Sidebar({onClose}) {
         />
       </nav>
 
-      
-       <div className="px-4 py-4 border-t">
+      <div className="px-4 py-4 border-t">
         {user && (
           <div className="flex items-center gap-3">
             <img
@@ -70,7 +61,7 @@ export default function Sidebar({onClose}) {
         </button>
       )}
     </aside>
-  )
+  );
 }
 
 function SidebarItem({ to, icon, label }) {
@@ -89,5 +80,5 @@ function SidebarItem({ to, icon, label }) {
       {icon}
       {label}
     </NavLink>
-  )
+  );
 }
