@@ -4,10 +4,7 @@ export function getToken() {
   return localStorage.getItem("token") ?? "";
 }
 
-console.log(getToken());
-
 export async function extractWithLLM(transcript) {
-  console.log("Extracting with LLM, transcript:", transcript);
   if (!transcript) throw new Error("Transcript is required");
 
   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ai/extract`, {
@@ -18,14 +15,12 @@ export async function extractWithLLM(transcript) {
     },
     body: JSON.stringify({ transcript }),
   });
-
   if (!response.ok) {
     const errText = await response.text();
     throw new Error(`AI extraction failed: ${errText}`);
   }
 
   const data = await response.json();
-  console.log(data);
 
   if (!data.success) throw new Error(data.message ?? "AI extraction failed");
 
