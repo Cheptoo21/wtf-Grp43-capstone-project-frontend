@@ -5,6 +5,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
+  GoogleAuthProvider,
+  OAuthProvider,
+  signInWithPopup,
+} from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import {
   Card,
   CardContent,
   CardHeader,
@@ -29,6 +35,32 @@ export default function LoginForm() {
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
+  async function handleGoogleLogin() {
+  try {
+    const provider = new GoogleAuthProvider()
+    // eslint-disable-next-line no-unused-vars
+    const result = await signInWithPopup(auth, provider)
+
+    // console.log("Google user:", result.user)
+    navigate("/dashboard")
+  } catch (err) {
+    console.error(err)
+    setError("Google sign-in failed")
+  }
+}
+
+async function handleAppleLogin() {
+  try {
+    const provider = new OAuthProvider("apple.com")
+    const result = await signInWithPopup(auth, provider)
+
+    console.log("Apple user:", result.user)
+    navigate("/dashboard")
+  } catch (err) {
+    console.error(err)
+    setError("Apple sign-in failed")
+  }
+}
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -159,15 +191,17 @@ export default function LoginForm() {
 
           
           <div className="flex justify-center gap-4">
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
+            <button 
+            onClick = {handleGoogleLogin}
+            className="h-10 w-10 rounded-full border flex items-center justify-center">
               <img src="/src/assets/icons/google.svg" alt="Google" className="h-5" />
             </button>
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
+            <button 
+            onClick = {handleAppleLogin}
+            className="h-10 w-10 rounded-full border flex items-center justify-center">
               <img src="/src/assets/icons/apple.svg" alt="Apple" className="h-5" />
             </button>
-            <button className="h-10 w-10 rounded-full border flex items-center justify-center">
-              <img src="/src/assets/icons/facebook.svg" alt="Facebook" className="h-5" />
-            </button>
+            
           </div>
 
           
