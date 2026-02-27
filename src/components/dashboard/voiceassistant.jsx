@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { extractWithLLM, saveTransaction } from "../Serivces/transactionservice";
+import { extractWithLLM, saveTransaction } from "../";
 import {
   Waveform,
   MicButton,
@@ -11,13 +11,14 @@ import {
 } from "./voiceassistantUI";
 
 const SUBTITLE = {
-  idle:       "Tap the mic to speak a transaction",
-  recording:  "Listening…",
-  extracting: "Extracting fields…",
-  preview:    "Does this look right?",
-  saving:     "Saving to ledger…",
-  success:    "Transaction saved ✓",
-  error:      "Something went wrong",
+  idle:        "Tap the mic to speak a transaction",
+  recording:   "Listening…",
+  transcribing:"Transcribing audio…",
+  extracting:  "Extracting fields…",
+  preview:     "Does this look right?",
+  saving:      "Saving to ledger…",
+  success:     "Transaction saved ✓",
+  error:       "Something went wrong",
 };
 
 export default function DashboardVoiceAssistant() {
@@ -25,7 +26,7 @@ export default function DashboardVoiceAssistant() {
   const [audioURL, setAudioURL]                 = useState(null);
   const [transcript, setTranscript]             = useState("");
   const [phase, setPhase]                       = useState("idle");
-  const [extracted, setExtracted]               = useState(null);  
+  const [extracted, setExtracted]               = useState(null);
   const [savedTransaction, setSavedTransaction] = useState(null);
   const [errorMsg, setErrorMsg]                 = useState("");
 
@@ -46,56 +47,88 @@ export default function DashboardVoiceAssistant() {
     reset();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+
+      // Pick a MIME type the browser actually supports
+      const mimeType = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/ogg;codecs=opus",
+        "audio/mp4",
+      ].find((m) => MediaRecorder.isTypeSupported(m)) ?? "";
+
+      const mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
+      audioChunksRef.current   = [];
 
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
 
-     // on recording stop
-             mediaRecorder.onstop = async () => {
-  const blob = new Blob(audioChunksRef.current, { type: "audio/wav" });
-  setAudioURL(URL.createObjectURL(blob));
+      // ─── Fixed onstop handler ─────────────────────────────────────────
+      mediaRecorder.onstop = async () => {
+        // Stop all mic tracks so the browser indicator goes away
+        stream.getTracks().forEach((t) => t.stop());
 
-  setPhase("extracting");
+        const blob = new Blob(audioChunksRef.current, {
+          type: mimeType || "audio/webm",
+        });
+        setAudioURL(URL.createObjectURL(blob));
 
-  try {
-    // 1️⃣ Convert audio to text using Whisper/OpenAI
-    // If you already have an AI JS SDK or want to test, you can use a dummy transcript:
-    const transcript = "Sold beans 5000"; // replace with actual transcription if available
-    setTranscript(transcript);
+        try {
+          // ── Step 1: Transcribe with OpenAI Whisper ──────────────────
+          setPhase("transcribing");
 
-    // 2️⃣ Extract transaction fields from text
-    const fields = await extractWithLLM(transcript); 
-    setExtracted(fields);
+          const formData = new FormData();
+          // Whisper needs a filename with an extension it recognises
+          const ext = (mimeType.split(";")[0].split("/")[1]) || "webm";
+          formData.append("file", blob, `recording.${ext}`);
+          formData.append("model", "whisper-1");
 
-    // 3️⃣ Send parsed fields to backend transactions API
-    const token = localStorage.getItem("token") ?? "";
-    const res = await fetch("http://localhost:3000/api/transactions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(fields),
-    });
+          const whisperRes = await fetch(
+            "https://api.openai.com/v1/audio/transcriptions",
+            {
+              method: "POST",
+              headers: {
+                // ⚠️  Move this key to an env var / proxy when you add a backend
+                Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+              },
+              body: formData,
+            }
+          );
 
-    if (!res.ok) throw new Error("Failed to save transaction");
+          if (!whisperRes.ok) {
+            const err = await whisperRes.json().catch(() => ({}));
+            throw new Error(err?.error?.message ?? `Whisper error ${whisperRes.status}`);
+          }
 
-    setPhase("success");
-  } catch (err) {
-    setErrorMsg(err.message);
-    setPhase("error");
-  }
-};
+          const { text } = await whisperRes.json();
+          if (!text?.trim()) throw new Error("No speech detected — please try again.");
+          setTranscript(text);
+
+          // ── Step 2: Extract fields with Claude ──────────────────────
+          setPhase("extracting");
+          const fields = await extractWithLLM(text);
+          setExtracted(fields);
+
+          // ── Step 3: Show preview — let the user confirm before saving
+          setPhase("preview");
+
+        } catch (err) {
+          setErrorMsg(err.message);
+          setPhase("error");
+        }
+      };
+      // ─────────────────────────────────────────────────────────────────
 
       mediaRecorder.start();
       setRecording(true);
       setPhase("recording");
-    } catch {
-      setErrorMsg("Microphone access denied — please allow it and try again.");
+
+    } catch (err) {
+      const msg = err?.name === "NotAllowedError"
+        ? "Microphone access denied — please allow it and try again."
+        : err.message;
+      setErrorMsg(msg);
       setPhase("error");
     }
   }
@@ -103,8 +136,10 @@ export default function DashboardVoiceAssistant() {
   function stopRecording() {
     mediaRecorderRef.current?.stop();
     setRecording(false);
+    // phase transitions to "transcribing" inside onstop
   }
 
+  // Called when user clicks "Save Transaction" in the preview card
   async function confirmSave() {
     if (!extracted) return;
     setPhase("saving");
@@ -119,8 +154,11 @@ export default function DashboardVoiceAssistant() {
     }
   }
 
-  const isProcessing = phase === "extracting" || phase === "saving";
-  const spinnerLabel = phase === "extracting" ? "Extracting with AI…" : "Saving to ledger…";
+  const isProcessing  = ["transcribing", "extracting", "saving"].includes(phase);
+  const spinnerLabel  =
+    phase === "transcribing" ? "Transcribing audio…"
+    : phase === "extracting" ? "Extracting with AI…"
+    : "Saving to ledger…";
 
   return (
     <div
@@ -130,6 +168,7 @@ export default function DashboardVoiceAssistant() {
         boxShadow: "0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
       }}
     >
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <p className="m-0 text-[15px] font-semibold text-slate-100 tracking-tight">
@@ -151,12 +190,14 @@ export default function DashboardVoiceAssistant() {
 
       <Waveform active={recording} />
 
+      {/* Transcript quote */}
       {transcript && (
         <p className="m-0 text-xs text-slate-400 italic leading-relaxed border-l-2 border-emerald-500/35 pl-2.5">
           "{transcript}"
         </p>
       )}
 
+      {/* Audio playback */}
       {audioURL && (
         <audio
           controls
@@ -166,8 +207,10 @@ export default function DashboardVoiceAssistant() {
         />
       )}
 
+      {/* Spinner during async steps */}
       {isProcessing && <Spinner label={spinnerLabel} />}
 
+      {/* ── Preview card — shown after extraction, before save ── */}
       {phase === "preview" && extracted && (
         <div className="flex flex-col gap-3 rounded-xl bg-white/[0.04] border border-white/10 p-3.5">
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
@@ -204,7 +247,9 @@ export default function DashboardVoiceAssistant() {
         </div>
       )}
 
-      {phase === "success" && savedTransaction && <SuccessBanner transaction={savedTransaction} />}
+      {phase === "success" && savedTransaction && (
+        <SuccessBanner transaction={savedTransaction} />
+      )}
       {phase === "error" && <ErrorBanner message={errorMsg} />}
 
       {(phase === "error" || phase === "success") && (
