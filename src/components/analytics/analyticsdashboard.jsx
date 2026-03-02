@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAnalytics } from "../hooks/useAnalytics";
+import { useAnalytics } from "../hooks/useanalytics";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   LineChart, Line, CartesianGrid, Legend,

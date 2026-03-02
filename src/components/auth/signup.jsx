@@ -54,10 +54,6 @@ export default function SignUpForm() {
       const data = await res.json();
       console.log("Signup success:", data);
 
-      // Store token if your API returns one
-      // localStorage.setItem("token", data.token)
-
-      // Navigate after successful signup
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);
