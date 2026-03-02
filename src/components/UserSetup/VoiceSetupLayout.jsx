@@ -4,7 +4,7 @@ import Footer from "../layout/footer";
 import VoiceInstructionCard from "./VoiceInstructionCard";
 import MicButton from "./MicButton";
 import AudioControls from "./AudioControls";
-import { useVoiceRecorder } from "../../hooks/useVoiceRecorder";
+import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { calculateMatchScore, PASSPHRASE, MATCH_THRESHOLD } from "../../utils/voiceMatch";
 
 const STATUS_CONFIG = {

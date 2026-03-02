@@ -6,16 +6,12 @@ export const useVoiceRecorder = () => {
   const [transcript, setTranscript] = useState('');
 
   const startRecording = () => {
-    console.log('startRecording called');
 
     return new Promise((resolve, reject) => {
-      console.log('Promise created');
+
 
       const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition;
-
-      console.log('SpeechRecognition available:', !!SpeechRecognition);
-
       if (!SpeechRecognition) {
         const err = new Error(
           'Speech recognition not supported. Please use Chrome or Edge.'
@@ -43,13 +39,11 @@ export const useVoiceRecorder = () => {
       recognition.continuous = false;
 
       recognition.onstart = () => {
-        console.log('Recognition started successfully');
         setIsRecording(true);
       };
 
       recognition.onresult = (event) => {
         const spokenText = event.results[0][0].transcript;
-        console.log('Recognized text:', spokenText);
         setTranscript(spokenText);
         setIsRecording(false);
         resolve(spokenText);
@@ -62,7 +56,6 @@ export const useVoiceRecorder = () => {
       };
 
       recognition.onend = () => {
-        console.log('Recognition ended');
         setIsRecording(false);
       };
 
@@ -70,7 +63,6 @@ export const useVoiceRecorder = () => {
       setTimeout(() => {
         try {
           recognition.start();
-          console.log('recognition.start() called');
         } catch (err) {
           console.error('Failed to call recognition.start():', err);
           reject(err);
@@ -80,7 +72,6 @@ export const useVoiceRecorder = () => {
   };
 
   const stopRecording = () => {
-    console.log('stopRecording called');
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setIsRecording(false);

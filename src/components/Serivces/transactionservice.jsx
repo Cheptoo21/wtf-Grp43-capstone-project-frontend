@@ -6,7 +6,7 @@ export function getToken() {
 
 export async function extractWithLLM(transcript) {
   if (!transcript) throw new Error("Transcript is required");
-
+  console.log(getToken());
   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ai/extract`, {
     method: "POST",
     headers: {
