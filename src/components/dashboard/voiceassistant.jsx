@@ -10,7 +10,7 @@ import {
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 
 const SUBTITLE = {
-  idle:       "Tap the mic to speak a transaction",
+  idle:       "Tap the mic to speak a transaction \n (e.g I bought/sold a bottle of wine for 4000 naira)",
   recording:  "Listening… say your transaction",
   extracting: "Understanding what you said…",
   preview:    "Does this look right?",
@@ -19,24 +19,22 @@ const SUBTITLE = {
   error:      "Something went wrong",
 };
 
-export default function DashboardVoiceAssistant() {
+export default function DashboardVoiceAssistant({setSaved, saved}) {
   const { startRecording, isRecording } = useVoiceRecorder();
 
   const [phase, setPhase]                       = useState("idle");
   const [transcript, setTranscript]             = useState("");
   const [extracted, setExtracted]               = useState(null);
-  const [savedTransaction, setSavedTransaction] = useState(null);
   const [errorMsg, setErrorMsg]                 = useState("");
 
   function reset() {
     setTranscript("");
     setExtracted(null);
-    setSavedTransaction(null);
+    setSaved(null);
     setErrorMsg("");
     setPhase("idle");
   }
 
-  // ── Step 1: Record and transcribe ──────────────────────────────
   async function handleMicPress() {
     if (isRecording || phase === "extracting" || phase === "saving") return;
 
@@ -45,16 +43,13 @@ export default function DashboardVoiceAssistant() {
     try {
       setPhase("recording");
 
-      // Web Speech API converts speech to text directly
       const spokenText = await startRecording();
       setTranscript(spokenText);
 
-      // ── Step 2: Send transcript to Claude to extract fields ────
       setPhase("extracting");
       const fields = await extractWithLLM(spokenText);
       setExtracted(fields);
 
-      // ── Step 3: Show preview so user can confirm ───────────────
       setPhase("preview");
 
     } catch (err) {
@@ -63,13 +58,12 @@ export default function DashboardVoiceAssistant() {
     }
   }
 
-  // ── Step 4: User confirms — save to backend ────────────────────
   async function confirmSave() {
     if (!extracted) return;
     setPhase("saving");
     try {
       const saved = await saveTransaction(extracted);
-      setSavedTransaction(saved ?? extracted);
+      setSaved(saved ?? extracted);
       setPhase("success");
       setTimeout(() => reset(), 4000);
     } catch (err) {
@@ -98,7 +92,7 @@ export default function DashboardVoiceAssistant() {
             Voice Assistant
           </p>
           <p
-            className={`mt-0.5 text-xs font-medium transition-colors duration-300 ${
+            className={`mt-0.5 text-xs font-medium transition-colors duration-300 whitespace-pre-line ${
               phase === "error" ? "text-red-400" : "text-emerald-400"
             }`}
           >
@@ -113,20 +107,16 @@ export default function DashboardVoiceAssistant() {
         />
       </div>
 
-      {/* Waveform animation while recording */}
       <Waveform active={isRecording} />
 
-      {/* Show what was heard */}
       {transcript && (
         <p className="m-0 text-xs text-slate-400 italic leading-relaxed border-l-2 border-emerald-500/35 pl-2.5">
           "{transcript}"
         </p>
       )}
 
-      {/* Loading spinner */}
       {isProcessing && <Spinner label={spinnerLabel} />}
 
-      {/* Preview — user confirms before saving */}
       {phase === "preview" && extracted && (
         <div className="flex flex-col gap-3 rounded-xl bg-white/[0.04] border border-white/10 p-3.5">
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
@@ -173,15 +163,12 @@ export default function DashboardVoiceAssistant() {
         </div>
       )}
 
-      {/* Success */}
-      {phase === "success" && savedTransaction && (
-        <SuccessBanner transaction={savedTransaction} />
+      {phase === "success" && saved && (
+        <SuccessBanner transaction={saved} />
       )}
 
-      {/* Error */}
       {phase === "error" && <ErrorBanner message={errorMsg} />}
 
-      {/* Reset buttons */}
       {(phase === "error" || phase === "success") && (
         <button
           onClick={reset}

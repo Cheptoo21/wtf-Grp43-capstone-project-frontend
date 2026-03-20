@@ -13,6 +13,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Mic, Eye, EyeOff } from "lucide-react";
+import { setToken } from "@/lib/authService";
 
 export default function SignUpForm() {
   const [formData, setFormData] = useState({
@@ -52,7 +53,7 @@ export default function SignUpForm() {
       }
 
       const data = await res.json();
-      console.log("Signup success:", data);
+      setToken(data.token);
 
       navigate("/dashboard");
     } catch (err) {
