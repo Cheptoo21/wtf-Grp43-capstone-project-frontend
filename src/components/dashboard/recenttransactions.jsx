@@ -59,7 +59,7 @@ export default function Transactions({ saved }) {
         ) : transactions.map((t, i) => (
           <div key={i} className="flex justify-between items-center">
             <div>
-              <p className="text-sm font-medium text-gray-700 capitalize">{`${t.transactionType} : ${t.item}`}</p>
+              <p className="text-sm font-medium text-gray-700 capitalize">{`${t.transactionType}: ${t.item}`}</p>
               <p className="text-xs text-gray-400">{formatRelativeDate(t.date)}</p>
             </div>
             <span

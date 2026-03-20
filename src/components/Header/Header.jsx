@@ -4,7 +4,7 @@ import ResponsiveNav from "../ui/responsive-nav.jsx";
 const navItems = [
   { label: "Features", to: "/" },
   { label: "About", to: "/signup" },
-  { label: "Help", to: "/profile-setup" },
+  { label: "Help", to: "/login" },
 ];
 
 export default function Header() {
