@@ -9,7 +9,7 @@ export default function DashboardLayout({ children }) {
     <div className="min-h-screen bg-gray-50 flex">
       
       
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <Sidebar />
         
       </div>
@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }) {
 
     
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
+        <div className="fixed inset-0 z-50 flex lg:hidden">
           <div className="w-64 bg-white shadow-lg">
             <Sidebar onClose={() => setSidebarOpen(false)} />
           </div>
@@ -31,7 +31,7 @@ export default function DashboardLayout({ children }) {
       <div className="flex-1 flex flex-col">
         
         
-        <div className="md:hidden bg-white border-b px-4 py-3 flex items-center">
+        <div className="lg:hidden bg-white border-b px-4 py-3 flex items-center">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 rounded-md hover:bg-gray-100"
@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }) {
         </div>
 
        
-        <main className="flex-1 p-4 md:p-6">
+        <main className="flex-1 p-4 lg:p-6">
           {children}
         </main>
       </div>

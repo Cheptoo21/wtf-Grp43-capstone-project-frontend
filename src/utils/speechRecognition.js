@@ -27,7 +27,6 @@ export const startSpeechRecognition = (lang = "en-US") => {
       reject(new Error(`Speech error: ${e.error}`));
     };
 
-    // Small delay prevents "aborted" error on button click
     setTimeout(() => {
       recognition.start();
     }, 300);

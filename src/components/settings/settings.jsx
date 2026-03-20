@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { clearToken } from "@/lib/authService";
 
 function SectionCard({ children, className = "" }) {
   return (
@@ -149,7 +150,7 @@ function LogoutModal({ onConfirm, onCancel }) {
 }
 
 export default function Settings() {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
@@ -162,8 +163,9 @@ export default function Settings() {
   const setToggle = (key) => (val) =>
     setToggles((prev) => ({ ...prev, [key]: val }));
 
-  const handleLogout = () => {
-    navigate("/");
+  const handleLogout = async () => {
+    clearToken();
+    await logout();
   };
 
   return (
