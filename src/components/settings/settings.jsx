@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { clearToken } from "@/lib/authService";
+// import { Database } from "lucide-react";
+
+
 
 function SectionCard({ children, className = "" }) {
   return (
@@ -20,10 +23,13 @@ function SectionHeader({ title, subtitle }) {
 }
 
 function SettingRow({ icon, label, description, children }) {
+  const Icon = icon;
+
   return (
     <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 last:border-0 gap-4">
       <div className="flex items-center gap-3 min-w-0">
-        <img src={icon} alt={label} className="w-5 h-5 shrink-0" />
+        {}
+        <Icon aria-label={label} className="w-5 h-5 shrink-0" />
         <div className="min-w-0">
           <p className="text-sm font-medium text-gray-700">{label}</p>
           {description && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
@@ -149,6 +155,9 @@ function LogoutModal({ onConfirm, onCancel }) {
   );
 }
 
+import Bell from "../../assets/icons/bell.svg?react";
+import { Database, FolderClosed, LogOut } from "lucide-react";
+
 export default function Settings() {
   const { logout } = useAuth();
 
@@ -173,13 +182,13 @@ export default function Settings() {
       
       <SectionCard>
         <SectionHeader title="Security & Privacy" subtitle="Keep your account safe" />
-        <SettingRow icon="../../assets/icons/bell.svg" label="Two-Factor Authentication" description="Add an extra layer of security">
+        <SettingRow icon={Bell} label="Two-Factor Authentication" description="Add an extra layer of security">
           <Toggle enabled={toggles.twoFactor} onChange={setToggle("twoFactor")} />
         </SettingRow>
-        <SettingRow icon="/icons/data-sharing.svg" label="Data Sharing" description="Help improve the app with usage data">
+        <SettingRow icon={Database} label="Data Sharing" description="Help improve the app with usage data">
           <Toggle enabled={toggles.dataSharing} onChange={setToggle("dataSharing")} />
         </SettingRow>
-        <SettingRow icon="/icons/privacy.svg" label="Privacy Policy" description="Read how we handle your data">
+        <SettingRow icon={FolderClosed} label="Privacy Policy" description="Read how we handle your data">
           <button
             onClick={() => setShowPrivacy(true)}
             className="text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
@@ -197,7 +206,7 @@ export default function Settings() {
             onClick={() => setShowLogout(true)}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-red-100 bg-red-50 text-red-500 text-sm font-semibold hover:bg-red-100 hover:border-red-200 transition-all duration-150"
           >
-            <img src="/icons/logout.svg" alt="logout" className="w-4 h-4" /> Log Out
+            <LogOut aria-label="logout" className="w-4 h-4" /> Log Out
           </button>
         </div>
       </SectionCard>
