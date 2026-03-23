@@ -20,8 +20,8 @@ import {
 import { Eye, EyeOff } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { setToken } from "@/lib/authService"
-import Apple from "../..//assets/icons/apple.svg?react"
-import Google from "../..//assets/icons/google.svg?react"
+import Apple from "../../assets/icons/apple.svg?react"
+import Google from "../../assets/icons/google.svg?react"
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
