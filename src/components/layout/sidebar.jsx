@@ -2,9 +2,20 @@ import { NavLink } from "react-router-dom";
 import { LayoutDashboard, BookOpen, BarChart3, Settings } from "lucide-react";
 import Logo from "@/components/Logo/Logo.jsx";
 import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
+import { LogOut } from "lucide-react";
+import LogoutModal from "../settings/logOutModal";
+import { clearToken } from "@/lib/authService";
 
 export default function Sidebar({ onClose }) {
+  const { logout } = useAuth();
   const { user } = useAuth() || {};
+  const [showLogout, setShowLogout ] = useState(false);
+
+  const handleLogout = async () => {
+    clearToken();
+    await logout();
+  };
   return (
     <aside className="w-64 min-h-screen bg-white border-r flex flex-col">
       <div className="px-6 py-4 border-b">
@@ -32,7 +43,20 @@ export default function Sidebar({ onClose }) {
           icon={<Settings size={18} />}
           label="Settings"
         />
+        <button
+            onClick={() => setShowLogout(true)}
+            className="w-full flex items-center gap-3 px-4 py-2 text-red-500 text-sm font-semibold hover:bg-red-50 hover:border-red-200 transition-all duration-150"
+          >
+            <LogOut aria-label="logout" className="w-4 h-4" /> Log Out
+          </button>
       </nav>
+
+      {showLogout && (
+        <LogoutModal
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogout(false)}
+        />
+      )}
 
       <div className="px-4 py-4 border-t">
         {user && (

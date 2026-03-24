@@ -1,3 +1,4 @@
+import { Mic } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const LedgerHeader = ({ handleFilter, type, handleSearch, initialSearch="" }) => {
@@ -27,11 +28,6 @@ const LedgerHeader = ({ handleFilter, type, handleSearch, initialSearch="" }) =>
           />
           <span className="text-gray-400 text-base shrink-0">
             <span className="shrink-0">
-  <img
-    src="/src/assets/icons/mic.svg"
-    alt="mic"
-    className="w-4 h-4 text-gray-400"
-  />
 </span>
           </span>
         </div>
