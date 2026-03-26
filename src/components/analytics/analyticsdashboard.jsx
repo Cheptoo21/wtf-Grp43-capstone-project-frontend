@@ -12,15 +12,20 @@ const TABS = [
   { id: "Export Data",     color: C.navy },
 ];
 
-function fmt(amount) {
-  return `$${Number(amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
-}
-
 export default function AnalyticsDashboard() {
   const [activeTab, setActiveTab] = useState("Revenue Reports");
   const { analytics, isLoading }  = useAnalytics();
 
   const isEmpty = analytics.totalSales === 0 && analytics.totalExpenses == 0;
+
+
+  function fmt(amount) {
+  return Number(amount).toLocaleString("en-NG", {
+    style: "currency",
+    currency: analytics?.currency || "NGN",
+    minimumFractionDigits: 2,
+  });
+  }
 
   return (
     <>
